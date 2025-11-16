@@ -140,30 +140,66 @@ export class DataProvidor {
         throw new Error("getAllCategories() must be implemented by subclass");
     }
 
+
+
     /**
- * Adds a new main category to the system.
- *
- * Example:
- *   addCustomCategory("Pets")
- *   addCustomCategory("Education")
- *
- * After adding:
- *   The category should appear in getAllCategories().
- *
- * Notes:
- * ------
- * 1. The name must be unique — providers should prevent duplicates.
- * 2. Subcategories for a newly added category should start as an empty array.
- * 3. This function does NOT automatically save — saving is done via saveHistory()
- *    or a dedicated save function if categories are stored separately.
- *
- * @param {string} mainCategoryName - The name of the new category.
- * @returns {Promise<{name: string, subcategories: Array<string>}>}
- *          The newly created category object.
- */
+     * Adds a new main category to the system.
+     *
+     * Example:
+     *   addCustomCategory("Pets")
+     *   addCustomCategory("Education")
+     *
+     * After adding:
+     *   The category should appear in getAllCategories().
+     *
+     * Notes:
+     * ------
+     * 1. The name must be unique — providers should prevent duplicates.
+     * 2. Subcategories for a newly added category should start as an empty array.
+     * 3. This function does NOT automatically save — saving is done via saveHistory()
+     *    or a dedicated save function if categories are stored separately.
+     *
+     * @param {string} mainCategoryName - The name of the new category.
+     * @returns {Promise<{name: string, subcategories: Array<string>}>}
+     *          The newly created category object.
+     */
     async addCustomCategory(mainCategoryName) {
         throw new Error("addCustomCategory() must be implemented by subclass");
     }
+
+    /**
+ * Loads the list of categories from localStorage.
+ *
+ * Storage Format:
+ * ---------------
+ * Categories are stored under the key CATEGORY_KEY as a JSON string.
+ *
+ * Example structure:
+ * [
+ *   { 
+ *     name: "Food",
+ *     subcategories: ["Groceries", "Eating Out"]
+ *   },
+ *   {
+ *     name: "Transport",
+ *     subcategories: ["Fuel", "Parking"]
+ *   }
+ * ]
+ *
+ * Return value:
+ * --------------
+ * - If no categories were saved yet → returns an empty array.
+ * - If JSON is corrupted → logs an error and returns an empty array.
+ *
+ * This function does NOT write anything — it only reads.
+ *
+ * @returns {Array<{name: string, subcategories: Array<string>}>}
+ *          Array of categories with their subcategories.
+ */
+    async loadCategories() {
+        throw new Error("loadCategories() must be implemented by subclass");
+    }
+
 
     /**
     * Adds a new subcategory under a specific main category.
@@ -321,29 +357,49 @@ export class DataProvidor {
     }
 
     /**
-    * Returns all transactions that match a given category.
-    *
-    * Example:
-    *   getTransactionsByCategory("Food", null)
-    *       → returns ALL transactions in the "Food" category.
-    *
-    *   getTransactionsByCategory("Food", "Groceries")
-    *       → returns ONLY the "Groceries" subcategory.
-    *
-    * Notes:
-    * ------
-    * 1. 'main' must match transaction.category.main.
-    * 2. If sub === null → match only by main category.
-    * 3. If sub is provided → match both main AND sub.
-    *
-    * @param {string} main - Main category name.
-    * @param {string|null} sub - Subcategory name or null.
-    *
-    * @returns {Promise<Array<Object>>}
-    */
-    async getTransactionsByCategory(main, sub) {
+     * Returns ALL transactions that belong to the given main category,
+     * regardless of which subcategory they belong to.
+     *
+     * Examples:
+     *   getTransactionsByCategory("Food")
+     *       → returns: Food/Groceries, Food/Eating Out, Food/Healthy Food...
+     *
+     * Notes:
+     * -------
+     * 1. Returns only transactions where transaction.category.main === main.
+     * 2. Does NOT filter by subcategory.
+     * 3. Does NOT modify any data.
+     *
+     * @param {string} main - Name of the main category.
+     * @returns {Promise<Array<Object>>} - A list of matching transactions.
+     */
+    async getTransactionsByCategory(main) {
         throw new Error("getTransactionsByCategory() must be implemented by subclass");
     }
+
+    /**
+     * Returns ONLY transactions matching the given main category AND subcategory.
+     *
+     * Example:
+     *   getTransactionsBySubcategory("Food", "Groceries")
+     *       → returns only Food/Groceries transactions.
+     *
+     * Notes:
+     * -------
+     * 1. Must match BOTH:
+     *        transaction.category.main === main
+     *        transaction.category.sub  === sub
+     * 2. Does NOT modify any data.
+     *
+     * @param {string} main - Main category name.
+     * @param {string} sub - Subcategory name.
+     * @returns {Promise<Array<Object>>}
+     */
+    async getTransactionsBySubcategory(main, sub) {
+        throw new Error("getTransactionsBySubcategory() must be implemented by subclass");
+    }
+
+
 
     /**
      * Exports ALL transactions into a downloadable CSV file.
@@ -363,6 +419,11 @@ export class DataProvidor {
     async exportToCSV() {
         throw new Error("exportToCSV() must be implemented by subclass");
     }
+
+    async getTransactionsBySubcategory(main, sub) {
+        throw new Error("getTransactionsBySubcategory() must be implemented");
+    }
+
 
     /**
      * Exports ALL transactions into an Excel (.xlsx) file.
