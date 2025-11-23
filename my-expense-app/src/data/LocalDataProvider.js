@@ -249,11 +249,14 @@ export default class LocalDataProvider extends DataProvidor {
                 delete this.categoryMemory[key];
             }
         }
+        localStorage.setItem(this.CATEGORIES_KEY, JSON.stringify(this.categories));
+        localStorage.setItem(this.CATEGORY_MEMORY_KEY, JSON.stringify(this.categoryMemory));
+        localStorage.setItem(this.HISTORY_KEY, JSON.stringify(this.history));
 
-        localStorage.setItem(
-            this.CATEGORY_MEMORY_KEY,
-            JSON.stringify(this.categoryMemory)
-        );
+        // localStorage.setItem(
+        //     this.CATEGORY_MEMORY_KEY,
+        //     JSON.stringify(this.categoryMemory)
+        // );
 
 
         return;
@@ -303,10 +306,14 @@ export default class LocalDataProvider extends DataProvidor {
                 this.categoryMemory[key] = { main: mainCategoryName, sub: null };
             }
         }
-        localStorage.setItem(
-            this.CATEGORY_MEMORY_KEY,
-            JSON.stringify(this.categoryMemory)
-        );
+        localStorage.setItem(this.CATEGORIES_KEY, JSON.stringify(this.categories));
+        localStorage.setItem(this.CATEGORY_MEMORY_KEY, JSON.stringify(this.categoryMemory));
+        localStorage.setItem(this.HISTORY_KEY, JSON.stringify(this.history));
+
+        // localStorage.setItem(
+        //     this.CATEGORY_MEMORY_KEY,
+        //     JSON.stringify(this.categoryMemory)
+        // );
 
         return;
     }
